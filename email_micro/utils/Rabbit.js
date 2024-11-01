@@ -1,0 +1,34 @@
+import amqp from "amqplib"
+import axios from "axios"
+import { sendDoctorMail, sendUserMail } from "./Email.js"
+var connection,channel
+
+const getUserData=async(id)=>{
+    console.log(typeof id)
+    const userData=await axios.get(`http://localhost:5001/api/auth/user/${id}`)
+    return userData.data
+}
+
+export async function connectQueue() {
+    try {
+        connection = await amqp.connect(process.env.RABBIT_MQ_URL);
+        channel    = await connection.createChannel()
+        
+        await channel.assertQueue("test-queue")
+        
+        channel.consume("test-queue", async(data) => {
+            // console.log(`${Buffer.from(data.content)}`,typeof(Buffer.from(data.content)));
+            
+            const json= JSON.parse(data.content)
+            const user=await getUserData(json.userId)
+            const doctor= await getUserData(json.doctorId)
+
+             await sendUserMail(user,doctor,json.schedule)
+             await sendDoctorMail(user,doctor,json.schedule)
+
+            channel.ack(data)
+        })
+    } catch (error) {
+        console.log(error);
+    }
+}

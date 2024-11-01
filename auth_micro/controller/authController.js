@@ -40,14 +40,19 @@ export const login = async (req, res) => {
           expiresIn: 3600,
         });
 
+     
+
         return res.json({
           message: "Login Successful",
           access_token: `Bearer ${token}`,
         });
+
       }
       return res
         .status(401)
         .json({ message: "Invalid Credentials" });
+
+
     }
 
     return res
@@ -67,10 +72,10 @@ export const user=(req,res)=>{
 
 export const getUser=async(req,res)=>{
     const id= req.params.id
-
+    console.log(typeof id)
     const user= await prisma.user.findUnique({
       where:{
-        id: id
+        id:id
       }
     })
 

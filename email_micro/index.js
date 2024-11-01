@@ -1,15 +1,12 @@
 import express, { json } from "express"
-import Routes from './Routes/index.js'
-import amqp from "amqplib"
 import cors from "cors"
-import axios from "axios"
+import { connectQueue } from "./utils/Rabbit.js"
 const app = express()
 
 app.use(express.json())
 app.use(cors())
-app.use(Routes)
 
-
-app.listen(5002,(req,res)=>{
+app.listen(5004,(req,res)=>{
+    connectQueue()
     console.log('Post server running')
 })
