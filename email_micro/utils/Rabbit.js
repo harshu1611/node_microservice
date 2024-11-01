@@ -4,8 +4,8 @@ import { sendDoctorMail, sendUserMail } from "./Email.js"
 var connection,channel
 
 const getUserData=async(id)=>{
-    console.log(typeof id)
-    const userData=await axios.get(`http://localhost:5001/api/auth/user/${id}`)
+    // console.log(typeof id)
+    const userData=await axios.get(`https://auth-microservice-khs4.onrender.com/api/auth/user/${id}`)
     return userData.data
 }
 
