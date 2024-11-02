@@ -1,6 +1,9 @@
 import express, { json } from "express"
 import cors from "cors"
 import { connectQueue } from "./utils/Rabbit.js"
+import dotenv from "dotenv";
+
+dotenv.config()
 const app = express()
 
 app.use(express.json())

@@ -6,6 +6,7 @@ var connection,channel
 const getUserData=async(id)=>{
     // console.log(typeof id)
     const userData=await axios.get(`https://auth-microservice-khs4.onrender.com/api/auth/user/${id}`)
+    // console.log(userData.data)
     return userData.data
 }
 
@@ -18,7 +19,7 @@ export async function connectQueue() {
         
         channel.consume("test-queue", async(data) => {
             // console.log(`${Buffer.from(data.content)}`,typeof(Buffer.from(data.content)));
-            
+            // console.log((data.content))
             const json= JSON.parse(data.content)
             const user=await getUserData(json.userId)
             const doctor= await getUserData(json.doctorId)
