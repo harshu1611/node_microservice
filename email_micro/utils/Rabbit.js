@@ -12,25 +12,46 @@ const getUserData=async(id)=>{
 
 export async function connectQueue() {
     try {
-        connection = await amqp.connect(process.env.RABBIT_MQ_URL);
-        channel    = await connection.createChannel()
-        
-        await channel.assertQueue("test-queue")
-        channel.consume("test-queue", async(data) => {
-            // console.log(`${Buffer.from(data.content)}`,typeof(Buffer.from(data.content)));
-            // console.log((data.content))
-            const json= JSON.parse(data.content)
-            const user=await getUserData(json.userId)
-            const doctor= await getUserData(json.doctorId)
-
-             await sendUserMail(user,doctor,json.schedule)
-             await sendDoctorMail(user,doctor,json.schedule)
-
-            channel.ack(data)
-
-            return {connection,channel}
-        })
+      connection = await amqp.connect(process.env.RABBIT_MQ_URL);
+      channel = await connection.createChannel();
+  
+      await channel.assertQueue("test-queue");
+  
+      channel.consume("test-queue", async (data) => {
+        if (data !== null) {
+          try {
+            const json = JSON.parse(data.content.toString());
+            const user = await getUserData(json.userId);
+            const doctor = await getUserData(json.doctorId);
+  
+            await sendUserMail(user, doctor, json.schedule);
+            await sendDoctorMail(user, doctor, json.schedule);
+  
+            channel.ack(data);
+          } catch (error) {
+            console.error("Error processing message:", error);
+            channel.nack(data, false, true); 
+          }
+        }
+      });
+  
+      setupCloseHandlers();
+      console.log("RabbitMQ consumer connected and running.");
+  
+      return { connection, channel };
     } catch (error) {
-        console.log(error);
+      console.log("Error connecting to RabbitMQ:", error);
+      setTimeout(connectQueue, 5000); // Retry connection after 5 seconds
     }
-}
+  }
+  const setupCloseHandlers = () => {
+    connection.on("close", () => {
+      console.error("RabbitMQ connection closed. Reconnecting...");
+      connectQueue(); // Reconnect on connection close
+    });
+  
+    connection.on("error", (error) => {
+      console.error("RabbitMQ connection error:", error);
+      connectQueue(); // Reconnect on connection error
+    });
+  }
