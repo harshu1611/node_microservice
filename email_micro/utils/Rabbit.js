@@ -16,7 +16,6 @@ export async function connectQueue() {
         channel    = await connection.createChannel()
         
         await channel.assertQueue("test-queue")
-        
         channel.consume("test-queue", async(data) => {
             // console.log(`${Buffer.from(data.content)}`,typeof(Buffer.from(data.content)));
             // console.log((data.content))
@@ -28,6 +27,8 @@ export async function connectQueue() {
              await sendDoctorMail(user,doctor,json.schedule)
 
             channel.ack(data)
+
+            return {connection,channel}
         })
     } catch (error) {
         console.log(error);
