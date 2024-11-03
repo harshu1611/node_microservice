@@ -5,6 +5,7 @@ var connection,channel
 
 const getUserData=async(id)=>{
     // console.log(typeof id)
+    await axios.get('https://auth-microservice-khs4.onrender.com/') //to turn on the server render instance.
     const userData=await axios.get(`https://auth-microservice-khs4.onrender.com/api/auth/user/${id}`)
     // console.log(userData.data)
     return userData.data
