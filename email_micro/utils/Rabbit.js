@@ -3,12 +3,27 @@ import axios from "axios"
 import { sendDoctorMail, sendUserMail } from "./Email.js"
 var connection,channel
 
+
+
+const refresh=async()=>{
+  const refreshStatus=await axios.get('https://auth-microservice-khs4.onrender.com/') //to turn on the server render instance.
+  
+  return refreshStatus.status
+
+}
+
 const getUserData=async(id)=>{
     // console.log(typeof id)
-    await axios.get('https://auth-microservice-khs4.onrender.com/') //to turn on the server render instance.
-    const userData=await axios.get(`https://auth-microservice-khs4.onrender.com/api/auth/user/${id}`)
-    // console.log(userData.data)
-    return userData.data
+    const refreshCode=refresh()
+    if(refreshCode===200){
+      const userData=await axios.get(`https://auth-microservice-khs4.onrender.com/api/auth/user/${id}`)
+      // console.log(userData.data)
+      return userData.data
+    }
+    else {
+        getUserData(id)
+    }
+    
 }
 
 export async function connectQueue() {
