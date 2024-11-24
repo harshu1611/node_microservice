@@ -15,7 +15,11 @@ export async function connectQueue() {
   
   export const sendData=async(data)=>{
       await channel.sendToQueue("test-queue",Buffer.from(JSON.stringify(data)));
-      await axios.get("https://node-microservice-008q.onrender.com/")
+      let authRefresh= await axios.get("https://node-microservice-008q.onrender.com/")
+      // console.log(authRefresh.status)
+      if(authRefresh.status !== 200){
+        await sendData(data)
+      }
       await channel.close();
       await connection.close()
   

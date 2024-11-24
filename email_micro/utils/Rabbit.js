@@ -5,25 +5,29 @@ var connection,channel
 
 
 
-const refresh=async()=>{
-  const refreshStatus=await axios.get('https://auth-microservice-khs4.onrender.com/') //to turn on the server render instance.
+// const refresh=async()=>{
+//   const refreshStatus=await axios.get('https://auth-microservice-khs4.onrender.com/') //to turn on the server render instance.
   
-  return refreshStatus.status
+//   return refreshStatus.status
 
-}
+// }
 
 const getUserData=async(id)=>{
     // console.log(typeof id)
-    const refreshCode=refresh()
-    if(refreshCode===200){
+    // const refreshCode=refresh()
+    try{
       const userData=await axios.get(`https://auth-microservice-khs4.onrender.com/api/auth/user/${id}`)
       // console.log(userData.data)
       return userData.data
-    }
-    else {
-        getUserData(id)
-    }
     
+    }
+    catch(err){
+        return err
+    }
+      
+     
+    
+  
 }
 
 export async function connectQueue() {
@@ -45,6 +49,7 @@ export async function connectQueue() {
   
             channel.ack(data);
           } catch (error) {
+
             console.error("Error processing message:", error);
             channel.nack(data, false, true); 
           }
